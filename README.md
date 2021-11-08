@@ -9,6 +9,24 @@ It uses compose lib and Kotlin, with a trivial UI, supporting basic functions, s
 
 ![UI](./ui.png)
 
+## Quick Start
+
+### Prerequisite
+
+- adb tool
+- Java SDK (Runtime kit is ok)
+
+
+The `TimeSync` tool uses adb, powered by android. So if you have not installed it yet, please check [this](https://developer.android.com/studio/command-line/adb) to install adb tools and config it in the Environment path
+
+Also, Java SDK(openjdk is recommended) 15 or newer version is needed, if not installed, please check [this](https://docs.microsoft.com/zh-cn/java/openjdk/download).
+
+### Install
+
+No install, just download the latest version [TimeSync.zip](https://github.com/coda1997/TimeSync/releases) in the [release page](https://github.com/coda1997/TimeSync/releases)
+
+Unzipping, then running it.
+
 ## Data Format
 
 it looks like this below:
