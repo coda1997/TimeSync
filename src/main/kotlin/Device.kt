@@ -1,1 +1,0 @@
-data class Device(val id:String, val isAttached:Boolean = true)

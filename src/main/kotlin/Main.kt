@@ -23,7 +23,7 @@ fun App() {
     var filePath by remember { mutableStateOf("./offsets.csv") }
     val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
     var num by remember { mutableStateOf(10) }
-    var message: String = ""
+    var message = ""
     val scroll = rememberScrollState(0)
 
     DesktopMaterialTheme {
@@ -99,7 +99,7 @@ fun saveToFile(content: String, path: String) {
 }
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
+    Window(onCloseRequest = ::exitApplication, title = "TimeSync") {
         App()
     }
 }
