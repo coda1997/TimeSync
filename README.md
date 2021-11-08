@@ -14,7 +14,7 @@ It uses compose lib and Kotlin, with a trivial UI, supporting basic functions, s
 ### Prerequisite
 
 - adb tool
-- Java SDK (Runtime kit is ok)
+- Java SDK (the Runtime kit is ok)
 
 
 The `TimeSync` tool uses adb, powered by android. So if you have not installed it yet, please check [this](https://developer.android.com/studio/command-line/adb) to install adb tools and config it in the Environment path
