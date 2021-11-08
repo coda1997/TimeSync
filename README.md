@@ -23,7 +23,7 @@ Also, Java SDK(openjdk is recommended) 15 or newer version is needed, if not ins
 
 ### Install
 
-No install, just download the latest version [TimeSync.zip](https://github.com/coda1997/TimeSync/releases) in the [release page](https://github.com/coda1997/TimeSync/releases)
+No installing, just download the latest version [TimeSync.zip](https://github.com/coda1997/TimeSync/releases) in the [release page](https://github.com/coda1997/TimeSync/releases)
 
 Unzipping, then running it.
 
