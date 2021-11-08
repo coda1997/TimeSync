@@ -3,44 +3,56 @@ import androidx.compose.desktop.DesktopMaterialTheme
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.window.AwtWindow
-import androidx.compose.ui.window.Dialog
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import java.awt.FileDialog
-import java.awt.Frame
 import java.io.File
-import java.nio.charset.Charset
 import java.time.LocalDateTime
+import kotlin.math.max
 
 @Composable
 @Preview
 fun App() {
-    var output by remember { mutableStateOf("结果") }
+    var output by remember { mutableStateOf("结果\n") }
     var filePath by remember { mutableStateOf("./offsets.csv") }
-    val (showDialog, setShowDialog) =  remember { mutableStateOf(false) }
-    var message:String = ""
+    val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
+    var num by remember { mutableStateOf(10) }
+    var message: String = ""
+    val scroll = rememberScrollState(0)
+
     DesktopMaterialTheme {
 
-        Column {
+        Column(modifier = Modifier.padding(5.dp)) {
             Row {
                 Text("保存路径：")
                 TextField(filePath, {
                     filePath = it
                 })
             }
-
+            Row {
+                Text("计算${num}次")
+                Button(onClick = {
+                    num = max(num - 1, 1)
+                }) {
+                    Text("-1")
+                }
+                Button(onClick = {
+                    num++
+                }) {
+                    Text("+1")
+                }
+            }
             Button(onClick = {
                 try {
-                    val res = refreshDevices(filePath)
+                    val res = refreshDevices(filePath, num)
                     output += res
-                } catch (e:Exception) {
+                } catch (e: Exception) {
                     setShowDialog(true)
                     message = e.localizedMessage
                 }
@@ -48,22 +60,29 @@ fun App() {
                 Text("计算offset")
             }
 
-            Text(output)
+            Text(output, modifier = Modifier.verticalScroll(scroll))
             DialogDemo(showDialog, setShowDialog, message)
         }
     }
 }
 
-fun refreshDevices(path: String):String{
-    val process = Runtime.getRuntime().exec("adb shell date +%s%N")
-    val input = process.inputStream
-    val bufferBytes = input.readAllBytes()
-    val remoteTime = String(bufferBytes).trimEnd().toLong().div(1000000)
-
-    val localTime = System.currentTimeMillis()
+fun refreshDevices(path: String, count: Int): String {
+    val localTimes = LongArray(count)
+    val remoteTimes = LongArray(count)
+    for (i in 0 until count) {
+        val process = Runtime.getRuntime().exec("adb shell date +%s%N")
+        val localTime = System.currentTimeMillis()
+        val input = process.inputStream
+        val bufferBytes = input.readAllBytes()
+        val remoteTime = String(bufferBytes).trimEnd().toLong().div(1000000)
+        localTimes[i] = localTime
+        remoteTimes[i] = remoteTime
+    }
+    val localTime = localTimes.average()
+    val remoteTime = remoteTimes.average()
     val header = LocalDateTime.now()
     val temp =
-        "${header}: 本地计算机时间: ${localTime}, 手机时间: ${remoteTime}, offset(remote-local): ${remoteTime - localTime}\n"
+        "${header}: 本地计算机时间: ${localTime}, 手机时间: ${remoteTime}, offset(remote-local): ${"%.2f".format(remoteTime - localTime)}\n"
     println(temp)
     //save to local files
     val res = "${header}, ${localTime}, ${remoteTime}, ${remoteTime - localTime}\n"
@@ -71,7 +90,7 @@ fun refreshDevices(path: String):String{
     return temp
 }
 
-fun saveToFile(content:String, path:String){
+fun saveToFile(content: String, path: String) {
     val f = File(path)
     if (!f.exists()) {
         f.createNewFile()
@@ -87,7 +106,7 @@ fun main() = application {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun DialogDemo(showDialog: Boolean, setShowDialog: (Boolean) -> Unit, message:String) {
+fun DialogDemo(showDialog: Boolean, setShowDialog: (Boolean) -> Unit, message: String) {
     if (showDialog) {
         AlertDialog(
             onDismissRequest = {
