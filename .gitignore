@@ -1,6 +1,5 @@
 # Project exclude paths
 /.gradle/
 /build/
-./offsets.csv
-./offsets2.csv
-./offsets2.xlsx
+
+offsets2.xlsx
