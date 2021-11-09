@@ -22,7 +22,7 @@ fun App() {
     var output by remember { mutableStateOf("结果\n") }
     var filePath by remember { mutableStateOf("./offsets.csv") }
     val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
-    var num by remember { mutableStateOf(10) }
+    var num by remember { mutableStateOf(20) }
     var message = ""
     val scroll = rememberScrollState(0)
 
@@ -67,23 +67,25 @@ fun App() {
 }
 
 fun refreshDevices(path: String, count: Int): String {
-    val localTimes = LongArray(count)
+    val localTimes = DoubleArray(count)
     val remoteTimes = LongArray(count)
     for (i in 0 until count) {
+        val preTime = System.currentTimeMillis()
         val process = Runtime.getRuntime().exec("adb shell date +%s%N")
         val localTime = System.currentTimeMillis()
         val input = process.inputStream
         val bufferBytes = input.readAllBytes()
         val remoteTime = String(bufferBytes).trimEnd().toLong().div(1000000)
-        localTimes[i] = localTime
+        localTimes[i] = (localTime+remoteTime)/2.0
         remoteTimes[i] = remoteTime
+        println("preTime:${preTime}, cur time: $localTime, offset: ${localTime-preTime}")
     }
     val localTime = localTimes.average()
     val remoteTime = remoteTimes.average()
     val header = LocalDateTime.now()
     val temp =
         "${header}: 本地计算机时间: ${localTime}, 手机时间: ${remoteTime}, offset(remote-local): ${"%.2f".format(remoteTime - localTime)}\n"
-    println(temp)
+//    println(temp)
     //save to local files
     val res = "${header}, ${localTime}, ${remoteTime}, ${remoteTime - localTime}\n"
     saveToFile(res, path)
